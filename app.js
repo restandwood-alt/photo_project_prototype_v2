@@ -1,7 +1,21 @@
-const START = 91;
-const FADE_TIME = 400;
+const CONFIG = {
+
+    START: 91,
+
+    FADE: 300,
+
+    CLICK_LOCK: 250,
+
+    HISTORY_LIMIT: 300,
+
+    PRELOAD_DEPTH: 2,
+
+    DEBUG: false
+
+};
 
 const pos = {
+
     "С":[50,1],
     "С-В":[95,5],
     "В":[97,50],
@@ -10,82 +24,129 @@ const pos = {
     "Ю-З":[5,95],
     "З":[3,50],
     "С-З":[5,5]
+
 };
 
 let graph = {};
-let history = JSON.parse(localStorage.getItem("history") || "[]");
-let cur = +localStorage.getItem("current") || START;
+
+let current =
+    Number(localStorage.getItem("current")) ||
+    CONFIG.START;
+
+let history =
+    JSON.parse(localStorage.getItem("history") || "[]");
 
 const img = document.getElementById("photo");
 const nav = document.getElementById("nav");
+const back = document.getElementById("back");
+
+const cache = new Map();
+
+let locked = false;
 
 fetch("graph.json")
-    .then(r => r.json())
-    .then(g => {
-        graph = g;
-        show(cur, false);
-    });
+.then(r=>r.json())
+.then(g=>{
 
-function preloadNeighbours(id){
-    if(!graph[id]) return;
+    graph = g;
 
-    Object.values(graph[id]).forEach(next=>{
-        const p = new Image();
-        p.src = `photos/${next}.jpg`;
-    });
+    show(current,false);
+
+});
+
+function log(...args){
+
+    if(CONFIG.DEBUG){
+
+        console.log(...args);
+
+    }
+
 }
 
-function show(id, animate = true){
+function imagePath(id){
 
-    cur = id;
-    localStorage.setItem("current", id);
+    return `photos/${id}.jpg`;
 
-    function updateImage(){
+}
 
-        img.onload = () => {
+function cacheImage(id){
 
-            img.style.opacity = 1;
+    if(cache.has(id)) return;
 
-            preloadNeighbours(id);
+    const im = new Image();
 
-        };
+    im.src = imagePath(id);
 
-        img.src = `photos/${id}.jpg`;
+    im.onerror = ()=>{
 
-        drawButtons(id);
-    }
+        console.warn("Missing image",id);
 
-    if(!animate){
+    };
 
-        updateImage();
-        return;
+    cache.set(id,im);
 
-    }
+}
 
-    img.style.opacity = 0;
+function preload(id,depth=CONFIG.PRELOAD_DEPTH,visited=new Set()){
 
-    setTimeout(updateImage, FADE_TIME);
+    if(depth<=0) return;
+
+    if(visited.has(id)) return;
+
+    visited.add(id);
+
+    const neighbours = graph[id];
+
+    if(!neighbours) return;
+
+    Object.values(neighbours).forEach(next=>{
+
+        cacheImage(next);
+
+        preload(next,depth-1,visited);
+
+    });
+
 }
 
 function drawButtons(id){
 
-    nav.innerHTML = "";
+    nav.innerHTML="";
 
     const neighbours = graph[id] || {};
 
     for(const [dir,target] of Object.entries(neighbours)){
 
-        const b = document.createElement("button");
+        const b=document.createElement("button");
 
-        b.className = "nav";
-        b.textContent = dir;
+        b.className="nav";
 
-        b.style.left = pos[dir][0] + "vw";
-        b.style.top = pos[dir][1] + "vh";
+        b.textContent=dir;
 
-        b.onclick = ()=>{
+        b.style.left=pos[dir][0]+"vw";
 
-            history.push(cur);
+        b.style.top=pos[dir][1]+"vh";
+
+        b.onclick=()=>{
+
+            if(locked) return;
+
+            locked=true;
+
+            setTimeout(()=>{
+
+                locked=false;
+
+            },CONFIG.CLICK_LOCK);
+
+            history.push(current);
+
+            if(history.length>CONFIG.HISTORY_LIMIT){
+
+                history.shift();
+
+            }
 
             localStorage.setItem(
                 "history",
@@ -102,15 +163,76 @@ function drawButtons(id){
 
 }
 
-document.getElementById("back").onclick = ()=>{
+function show(id,animate=true){
+
+    current=id;
+
+    localStorage.setItem("current",id);
+
+    drawButtons(id);
+
+    preload(id);
+
+    const updateImage=()=>{
+
+        cacheImage(id);
+
+        img.onload=()=>{
+
+            img.style.opacity=1;
+
+            log("Loaded",id);
+
+        };
+
+        img.onerror=()=>{
+
+            console.warn("Missing image",id);
+
+            img.style.opacity=1;
+
+        };
+
+        img.src=imagePath(id);
+
+    };
+
+    if(!animate){
+
+        updateImage();
+
+        return;
+
+    }
+
+    img.style.opacity=0;
+
+    setTimeout(updateImage,CONFIG.FADE);
+
+}
+
+back.onclick=()=>{
+
+    if(locked) return;
 
     if(!history.length) return;
 
-    const prev = history.pop();
+    locked=true;
+
+    setTimeout(()=>{
+
+        locked=false;
+
+    },CONFIG.CLICK_LOCK);
+
+    const prev=history.pop();
 
     localStorage.setItem(
+
         "history",
+
         JSON.stringify(history)
+
     );
 
     show(prev);
