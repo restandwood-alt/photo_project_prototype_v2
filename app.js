@@ -132,9 +132,9 @@ function drawButtons(id){
 
 	b.dataset.dir = dir;
 
-        b.style.left=pos[dir][0]+"vw";
+       // b.style.left=pos[dir][0]+"vw";
 
-        b.style.top=pos[dir][1]+"vh";
+       // b.style.top=pos[dir][1]+"vh";
 
         b.onclick=()=>{
 
