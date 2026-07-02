@@ -57,7 +57,7 @@ button{
 /*                 МОБИЛЬНАЯ ВЕРСИЯ                       */
 /* ===================================================== */
 
-@media (max-width: 768px){
+@media (max-width:768px){
 
     #photo{
 
@@ -68,16 +68,96 @@ button{
 
     .nav{
 
-        font-size:24px;
+        position:fixed;
+
+        font-size:22px;
         font-weight:bold;
 
-        padding:10px 14px;
-
-        border-radius:12px;
+        padding:8px 12px;
 
         background:rgba(0,0,0,.35);
 
-        backdrop-filter:blur(3px);
+        border-radius:10px;
+
+        z-index:1000;
+
+    }
+
+    /* ---------- верх ---------- */
+
+    .nav[data-dir="С-З"]{
+
+        left:18vw !important;
+        top:3vh !important;
+
+    }
+
+    .nav[data-dir="С"]{
+
+        left:50vw !important;
+        top:3vh !important;
+
+        transform:translateX(-50%);
+
+    }
+
+    .nav[data-dir="С-В"]{
+
+        left:82vw !important;
+        top:3vh !important;
+
+        transform:translateX(-100%);
+
+    }
+
+    /* ---------- низ ---------- */
+
+    .nav[data-dir="Ю-З"]{
+
+        left:18vw !important;
+        top:92vh !important;
+
+    }
+
+    .nav[data-dir="Ю"]{
+
+        left:50vw !important;
+        top:92vh !important;
+
+        transform:translateX(-50%);
+
+    }
+
+    .nav[data-dir="Ю-В"]{
+
+        left:82vw !important;
+        top:92vh !important;
+
+        transform:translateX(-100%);
+
+    }
+
+    /* ---------- левая сторона ---------- */
+
+    .nav[data-dir="З"]{
+
+        left:2vw !important;
+        top:50vh !important;
+
+        transform:translateY(-50%);
+
+    }
+
+    /* ---------- правая сторона ---------- */
+
+    .nav[data-dir="В"]{
+
+        right:2vw !important;
+        left:auto !important;
+
+        top:50vh !important;
+
+        transform:translateY(-50%);
 
     }
 
@@ -85,8 +165,8 @@ button{
 
         font-size:40px;
 
-        left:18px;
-        bottom:18px;
+        left:16px;
+        bottom:16px;
 
     }
 

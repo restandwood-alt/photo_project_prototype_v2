@@ -124,6 +124,8 @@ function drawButtons(id){
 
         b.textContent=dir;
 
+	b.dataset.dir = dir;
+
         b.style.left=pos[dir][0]+"vw";
 
         b.style.top=pos[dir][1]+"vh";
