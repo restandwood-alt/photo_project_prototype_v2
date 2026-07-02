@@ -37,7 +37,10 @@ let history =
     JSON.parse(localStorage.getItem("history") || "[]");
 
 const img = document.getElementById("photo");
-const nav = document.getElementById("nav");
+const topNav = document.getElementById("top-nav");
+const leftNav = document.getElementById("left-nav");
+const rightNav = document.getElementById("right-nav");
+const bottomNav = document.getElementById("bottom-nav");
 const back = document.getElementById("back");
 
 const cache = new Map();
@@ -112,7 +115,10 @@ function preload(id,depth=CONFIG.PRELOAD_DEPTH,visited=new Set()){
 
 function drawButtons(id){
 
-    nav.innerHTML="";
+    topNav.innerHTML = "";
+    leftNav.innerHTML = "";
+    rightNav.innerHTML = "";
+    bottomNav.innerHTML = "";
 
     const neighbours = graph[id] || {};
 
@@ -159,7 +165,33 @@ function drawButtons(id){
 
         };
 
-        nav.appendChild(b);
+        switch(dir){
+
+    		case "С":
+    		case "С-З":
+   	 	case "С-В":
+
+        		topNav.appendChild(b);
+        		break;
+
+    		case "З":
+
+        		leftNav.appendChild(b);
+       	 		break;
+
+    		case "В":
+
+        		rightNav.appendChild(b);
+        		break;
+
+    		case "Ю":
+    		case "Ю-З":
+    		case "Ю-В":
+
+        		bottomNav.appendChild(b);
+        		break;
+
+}
 
     }
 
